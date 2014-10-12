@@ -35,6 +35,7 @@
         }
       }
 
+      this.wrap();
       reportCollisions(this.bodies);
     },
 
@@ -56,6 +57,19 @@
       if (bodyIndex !== -1) {
         this.bodies.splice(bodyIndex, 1);
       }
+    },
+
+    wrap: function(body) {
+      for (var i = 0; i < this.bodies.length; i++) {
+        if ((this.bodies[i].center.y < 0) || (this.bodies[i].center.y > this.size.y)) {
+          this.bodies[i].center.y = this.size.y - this.bodies[i].center.y;
+        }
+      }
+      for (var i = 0; i < this.bodies.length; i++) {
+        if ((this.bodies[i].center.x < 0) || (this.bodies[i].center.x > this.size.x)) {
+          this.bodies[i].center.x = this.size.x - this.bodies[i].center.x;
+        }
+      }
     }
   };
 
@@ -65,7 +79,7 @@
     this.scale = {x: 0, y: 0};
     this.velocity = {x: 0, y: 0};
     this.speed = 0;
-    this.acceleration = .025;
+    this.drag = 0.97;
     this.radius = 20; // TODO: set to player size
     this.center = { x: game.center.x, y: game.center.y }; // TODO: set to initial player center
     this.keyboarder = new Keyboarder();
@@ -83,8 +97,12 @@
           this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
           this.scale.x = Math.cos(this.angle);
           this.scale.y = Math.sin(this.angle);
-          this.speed += this.acceleration;
+          this.speed += 0.1 // FIX
         }
+        else {
+          this.speed *= this.drag;
+        }
+
 
         this.velocity.x = this.speed * this.scale.x;
         this.velocity.y = this.speed * this.scale.y;
@@ -114,6 +132,11 @@
 
     collision: function(otherBody) {
       // implement me
+    },
+
+    wrap: function() {
+      this.center.x = this.center.x * margin;
+      this.center.y = this.center.y * margin;
     }
   };
 
@@ -137,7 +160,7 @@
 
   var isColliding = function(b1, b2) {
     // only works with circles, for now
-    var distance = Math.sqrt((Math.pow(b1.center.x-b2.center.x), 2) - (Math.pow(y1-y2), 2));
+    var distance = Math.sqrt((Math.pow(b1.center.x-b2.center.x), 2) + (Math.pow(y1-y2), 2));
     console.log(distance);
   };
 
